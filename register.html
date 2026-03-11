@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Book Exchange System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(16,185,129,0.1) 100%);
+        }
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            background: white;
+            border: none;
+        }
+        .auth-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" class="auth-logo">
+                <i class='bx bx-book-reader'></i> BookShare
+            </a>
+            
+            <h2 class="text-center mb-1 h3">Create an account</h2>
+            <p class="text-center text-muted mb-4">Join our community of book lovers.</p>
+
+            <div id="registerAlert" class="alert d-none" role="alert"></div>
+
+            <form id="registerForm">
+                <div class="mb-3">
+                    <label for="name" class="form-label fw-medium">Full Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class='bx bx-user'></i></span>
+                        <input type="text" class="form-control" id="name" required placeholder="John Doe">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-medium">Email address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class='bx bx-envelope'></i></span>
+                        <input type="email" class="form-control" id="email" required placeholder="name@example.com">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-medium">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class='bx bx-lock-alt'></i></span>
+                        <input type="password" class="form-control" id="password" required placeholder="Min. 6 characters" minlength="6">
+                    </div>
+                </div>
+
+                <div class="d-grid mb-4">
+                    <button type="submit" class="btn btn-primary btn-lg fw-semibold" id="registerBtn">
+                        Create Account
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <span class="text-muted">Already have an account?</span> 
+                    <a href="login.html" class="text-primary text-decoration-none fw-semibold">Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Redirect if already logged in
+            Auth.requireGuest();
+
+            const registerForm = document.getElementById('registerForm');
+            const registerAlert = document.getElementById('registerAlert');
+            const registerBtn = document.getElementById('registerBtn');
+
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+                registerBtn.disabled = true;
+
+                setTimeout(() => {
+                    const result = Auth.register({ name, email, password });
+
+                    registerAlert.classList.remove('d-none', 'alert-danger', 'alert-success');
+
+                    if (result.success) {
+                        registerAlert.classList.add('alert-success');
+                        registerAlert.textContent = result.message;
+                        registerForm.reset();
+                        
+                        // Redirect to login after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    } else {
+                        registerAlert.classList.add('alert-danger');
+                        registerAlert.textContent = result.message;
+                        registerBtn.innerHTML = 'Create Account';
+                        registerBtn.disabled = false;
+                    }
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

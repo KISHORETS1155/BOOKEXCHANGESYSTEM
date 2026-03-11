@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Book Exchange System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stat-card {
+            border-radius: 1rem;
+            color: white;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card i {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.2;
+        }
+        .stat-card h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            color: white;
+        }
+        .stat-card p {
+            font-size: 1.2rem;
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+        .bg-gradient-primary { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
+        .bg-gradient-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">Dashboard</h2>
+                <p class="text-muted" id="welcomeMessage">Welcome back!</p>
+            </div>
+            <a href="add-book.html" class="btn btn-primary"><i class='bx bx-plus'></i> Add Book</a>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-primary">
+                    <i class='bx bx-book'></i>
+                    <h3 id="statBooksListed">0</h3>
+                    <p>Books Listed</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-warning">
+                    <i class='bx bx-mail-send'></i>
+                    <h3 id="statPendingRequests">0</h3>
+                    <p>Pending Incoming</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-success">
+                    <i class='bx bx-check-double'></i>
+                    <h3 id="statAcceptedExchanges">0</h3>
+                    <p>Successful Exchanges</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Quick Actions -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title m-0"><i class='bx bx-bolt-circle text-warning'></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            <a href="browse-books.html" class="btn btn-light text-start p-3 d-flex align-items-center gap-3">
+                                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded"><i class='bx bx-search fs-4'></i></div>
+                                <div>
+                                    <h6 class="mb-0">Browse Books</h6>
+                                    <small class="text-muted">Find new books to read</small>
+                                </div>
+                            </a>
+                            <a href="exchange-requests.html" class="btn btn-light text-start p-3 d-flex align-items-center gap-3">
+                                <div class="bg-warning bg-opacity-10 text-warning p-2 rounded"><i class='bx bx-transfer fs-4'></i></div>
+                                <div>
+                                    <h6 class="mb-0">Manage Requests</h6>
+                                    <small class="text-muted">Review incoming and outgoing requests</small>
+                                </div>
+                            </a>
+                            <a href="my-books.html" class="btn btn-light text-start p-3 d-flex align-items-center gap-3">
+                                <div class="bg-success bg-opacity-10 text-success p-2 rounded"><i class='bx bx-library fs-4'></i></div>
+                                <div>
+                                    <h6 class="mb-0">My Library</h6>
+                                    <small class="text-muted">Manage the books you've listed</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
+                        <h5 class="card-title m-0"><i class='bx bx-time-five text-info'></i> Recent Activity</h5>
+                        <a href="exchange-requests.html" class="btn btn-sm btn-outline-secondary">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="recentActivityList">
+                            <!-- Populated dynamically -->
+                            <div class="p-4 text-center text-muted">Loading activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/books.js"></script>
+    <script src="js/exchange.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireAuth();
+            const user = Auth.getCurrentUser();
+            
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name}!`;
+
+            // Calculate Stats
+            const myBooks = Books.getByOwner(user.id);
+            const incomingReqs = Exchange.getIncomingRequests(user.id);
+            const outgoingReqs = Exchange.getOutgoingRequests(user.id);
+            
+            const pendingIncoming = incomingReqs.filter(r => r.status === 'pending').length;
+            const acceptedExchanges = incomingReqs.filter(r => r.status === 'accepted').length + 
+                                      outgoingReqs.filter(r => r.status === 'accepted').length;
+
+            document.getElementById('statBooksListed').textContent = myBooks.length;
+            document.getElementById('statPendingRequests').textContent = pendingIncoming;
+            document.getElementById('statAcceptedExchanges').textContent = acceptedExchanges;
+
+            // Recent Activity (combine recent incoming and outgoing requests)
+            const activityList = document.getElementById('recentActivityList');
+            const allMyRequests = [...incomingReqs, ...outgoingReqs]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5); // top 5 recent
+
+            activityList.innerHTML = '';
+            
+            if (allMyRequests.length === 0) {
+                activityList.innerHTML = `
+                    <div class="p-4 text-center text-muted">
+                        No recent activity. Start exploring books!
+                    </div>
+                `;
+            } else {
+                allMyRequests.forEach(req => {
+                    const isIncoming = req.ownerId === user.id;
+                    const book = Books.getById(req.bookId);
+                    const otherUserId = isIncoming ? req.requesterId : req.ownerId;
+                    const otherUser = Database.findById(DB_KEYS.USERS, otherUserId);
+                    const bookTitle = book ? book.title : 'Deleted Book';
+                    const userName = otherUser ? otherUser.name : 'Unknown User';
+                    
+                    let icon, text, statusClr;
+                    
+                    if (req.status === 'pending') {
+                        statusClr = 'text-warning';
+                        if (isIncoming) {
+                            icon = 'bx-download text-primary bg-primary bg-opacity-10';
+                            text = `<strong>${userName}</strong> requested your book <em>${bookTitle}</em>`;
+                        } else {
+                            icon = 'bx-upload text-info bg-info bg-opacity-10';
+                            text = `You requested <em>${bookTitle}</em> from <strong>${userName}</strong>`;
+                        }
+                    } else if (req.status === 'accepted') {
+                        statusClr = 'text-success';
+                        icon = 'bx-check-double text-success bg-success bg-opacity-10';
+                        if (isIncoming) {
+                            text = `You accepted request for <em>${bookTitle}</em> from <strong>${userName}</strong>`;
+                        } else {
+                            text = `<strong>${userName}</strong> accepted your request for <em>${bookTitle}</em>`;
+                        }
+                    } else {
+                        statusClr = 'text-danger';
+                        icon = 'bx-x text-danger bg-danger bg-opacity-10';
+                        text = `Request for <em>${bookTitle}</em> was rejected`;
+                    }
+
+                    const date = new Date(req.createdAt).toLocaleDateString();
+
+                    activityList.innerHTML += `
+                        <div class="list-group-item p-3 d-flex align-items-center gap-3">
+                            <div class="p-2 rounded ${icon.split(' ').slice(1).join(' ')}">
+                                <i class='bx ${icon.split(' ')[0]} fs-4'></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0 text-dark">${text}</p>
+                                <small class="text-muted">${date} &bull; <span class="${statusClr} text-capitalize">${req.status}</span></small>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

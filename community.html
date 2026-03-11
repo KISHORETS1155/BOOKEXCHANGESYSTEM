@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Forum - Book Exchange System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        const savedTheme = localStorage.getItem('book_exchange_theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    </script>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-5">
+        <h2 class="mb-4"><i class='bx bx-message-rounded-dots text-success'></i> Community Forum</h2>
+
+        <div class="row g-4">
+            <!-- New Post Form -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title m-0">Start a Discussion</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="postForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Topic <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="postTitle" required placeholder="e.g. Needs help finding a book">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Message <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="postMessage" rows="4" required placeholder="What's on your mind?"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success"><i class='bx bx-send'></i> Post to Forum</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            <div class="col-md-8">
+                <div id="postsContainer" class="d-flex flex-column gap-3">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const FORUM_KEY = 'book_exchange_forum_posts';
+            
+            // Seed fake posts if none exist
+            if (!localStorage.getItem(FORUM_KEY)) {
+                const fakePosts = [
+                    {
+                        id: 'post_1',
+                        authorName: 'Alice Smith',
+                        authorRole: 'user',
+                        title: 'Highly recommend Clean Code!',
+                        message: 'I just finished exchanging and reading Clean Code. It completely changed how I think about programming! Anyone else read it recently?',
+                        timestamp: new Date(Date.now() - 86400000 * 2).toISOString()
+                    },
+                    {
+                        id: 'post_2',
+                        authorName: 'System Admin',
+                        authorRole: 'admin',
+                        title: 'Welcome to the new BookShare Platform',
+                        message: 'We are thrilled to launch this new project! Please ensure your books are accurately described to facilitate smooth exchanges.',
+                        timestamp: new Date(Date.now() - 86400000 * 5).toISOString()
+                    }
+                ];
+                localStorage.setItem(FORUM_KEY, JSON.stringify(fakePosts));
+            }
+
+            const getPosts = () => JSON.parse(localStorage.getItem(FORUM_KEY)) || [];
+            const container = document.getElementById('postsContainer');
+
+            const renderPosts = () => {
+                const posts = getPosts().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                container.innerHTML = '';
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">No discussions yet. Be the first to post!</div>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const dateStr = new Date(post.timestamp).toLocaleString();
+                    const adminBadge = post.authorRole === 'admin' ? '<span class="badge bg-danger ms-2">Admin</span>' : '';
+                    
+                    container.innerHTML += `
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title fw-bold m-0 text-success">${post.title}</h5>
+                                    <small class="text-muted text-end" style="min-width: 120px;">${dateStr}</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                        <i class='bx bx-user text-secondary'></i>
+                                    </div>
+                                    <span class="fw-medium">${post.authorName}</span>
+                                    ${adminBadge}
+                                </div>
+                                <p class="card-text">${post.message.replace(/\n/g, '<br>')}</p>
+                                <hr class="border-secondary opacity-25">
+                                <div class="d-flex gap-3">
+                                    <a href="#" class="text-decoration-none text-muted small d-flex align-items-center gap-1" onclick="event.preventDefault(); UI.showToast('Liked!', 'You liked this post.', 'success');"><i class='bx bx-heart fs-5'></i> Like</a>
+                                    <a href="#" class="text-decoration-none text-muted small d-flex align-items-center gap-1" onclick="event.preventDefault(); UI.showToast('Reply', 'Replies are coming in the next update.', 'info');"><i class='bx bx-reply fs-5'></i> Reply</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            };
+
+            renderPosts();
+
+            // Handle New Post
+            document.getElementById('postForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const user = Auth.getCurrentUser();
+                
+                if (!user) {
+                    UI.showToast('Login Required', 'You must be logged in to post in the forum.', 'warning');
+                    return;
+                }
+
+                const title = document.getElementById('postTitle').value;
+                const message = document.getElementById('postMessage').value;
+
+                const newPost = {
+                    id: 'post_' + Math.random().toString(36).substr(2, 9),
+                    authorName: user.name,
+                    authorRole: user.role,
+                    title: title.trim(),
+                    message: message.trim(),
+                    timestamp: new Date().toISOString()
+                };
+
+                const posts = getPosts();
+                posts.push(newPost);
+                localStorage.setItem(FORUM_KEY, JSON.stringify(posts));
+
+                document.getElementById('postForm').reset();
+                UI.showToast('Success', 'Your post was added to the forum.', 'success');
+                renderPosts();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Requests - Book Exchange System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-5">
+        <h2 class="mb-4"><i class='bx bx-transfer text-primary'></i> Exchange Requests</h2>
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs mb-4" id="requestTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-medium" id="incoming-tab" data-bs-toggle="tab" data-bs-target="#incoming" type="button" role="tab" aria-selected="true">
+                    Incoming Requests
+                    <span class="badge bg-danger rounded-pill ms-1" id="incomingBadge">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-medium" id="outgoing-tab" data-bs-toggle="tab" data-bs-target="#outgoing" type="button" role="tab" aria-selected="false">
+                    Outgoing Requests
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <!-- Incoming Tab -->
+            <div class="tab-pane fade show active" id="incoming" role="tabpanel" tabindex="0">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Requester</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="incomingTableBody">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Outgoing Tab -->
+            <div class="tab-pane fade" id="outgoing" role="tabpanel" tabindex="0">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Owner</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outgoingTableBody">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/books.js"></script>
+    <script src="js/exchange.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireAuth();
+            const user = Auth.getCurrentUser();
+            
+            const renderData = () => {
+                const incomingReqs = Exchange.getIncomingRequests(user.id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+                const outgoingReqs = Exchange.getOutgoingRequests(user.id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                // Update badge
+                const pendingCount = incomingReqs.filter(r => r.status === 'pending').length;
+                document.getElementById('incomingBadge').textContent = pendingCount;
+                document.getElementById('incomingBadge').className = `badge ${pendingCount > 0 ? 'bg-danger' : 'bg-secondary'} rounded-pill ms-1`;
+
+                // Render Incoming
+                const incomingBody = document.getElementById('incomingTableBody');
+                incomingBody.innerHTML = '';
+                
+                if (incomingReqs.length === 0) {
+                    incomingBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No incoming requests.</td></tr>`;
+                } else {
+                    incomingReqs.forEach(req => {
+                        const book = Books.getById(req.bookId);
+                        const requester = Database.findById(DB_KEYS.USERS, req.requesterId);
+                        
+                        const bookTitle = book ? book.title : '<span class="text-muted">Deleted Book</span>';
+                        const reqName = requester ? requester.name : 'Unknown User';
+                        const reqEmail = requester ? requester.email : '';
+                        
+                        let statusBadge = `<span class="badge badge-${req.status}">${req.status.charAt(0).toUpperCase() + req.status.slice(1)}</span>`;
+                        
+                        let actions = '';
+                        if (req.status === 'pending') {
+                            actions = `
+                                <button class="btn btn-sm btn-success accept-btn" data-id="${req.id}"><i class='bx bx-check'></i> Accept</button>
+                                <button class="btn btn-sm btn-danger reject-btn" data-id="${req.id}"><i class='bx bx-x'></i> Reject</button>
+                            `;
+                        } else if (req.status === 'accepted') {
+                            actions = `<a href="mailto:${reqEmail}" class="btn btn-sm btn-outline-primary"><i class='bx bx-envelope'></i> Contact</a>`;
+                        }
+
+                        incomingBody.innerHTML += `
+                            <tr>
+                                <td><div class="fw-medium">${bookTitle}</div></td>
+                                <td>
+                                    <div>${reqName}</div>
+                                    <small class="text-muted">${reqEmail}</small>
+                                </td>
+                                <td>${new Date(req.createdAt).toLocaleDateString()}</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">${actions}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Render Outgoing
+                const outgoingBody = document.getElementById('outgoingTableBody');
+                outgoingBody.innerHTML = '';
+                
+                if (outgoingReqs.length === 0) {
+                    outgoingBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">You haven't made any requests.</td></tr>`;
+                } else {
+                    outgoingReqs.forEach(req => {
+                        const book = Books.getById(req.bookId);
+                        const owner = Database.findById(DB_KEYS.USERS, req.ownerId);
+                        
+                        const bookTitle = book ? book.title : '<span class="text-muted">Deleted Book</span>';
+                        const ownerName = owner ? owner.name : 'Unknown User';
+                        const ownerEmail = owner ? owner.email : '';
+                        
+                        let statusBadge = `<span class="badge badge-${req.status}">${req.status.charAt(0).toUpperCase() + req.status.slice(1)}</span>`;
+                        
+                        let actions = '';
+                        if (req.status === 'pending') {
+                            actions = `
+                                <button class="btn btn-sm btn-outline-danger cancel-btn" data-id="${req.id}"><i class='bx bx-trash'></i> Cancel</button>
+                            `;
+                        } else if (req.status === 'accepted') {
+                            actions = `<a href="mailto:${ownerEmail}" class="btn btn-sm btn-outline-primary"><i class='bx bx-envelope'></i> Contact</a>`;
+                        }
+
+                        outgoingBody.innerHTML += `
+                            <tr>
+                                <td><div class="fw-medium">${bookTitle}</div></td>
+                                <td>
+                                    <div>${ownerName}</div>
+                                    <small class="text-muted">${req.status==='accepted'?ownerEmail:'Hidden until accepted'}</small>
+                                </td>
+                                <td>${new Date(req.createdAt).toLocaleDateString()}</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">${actions}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                
+                attachEventListeners();
+            };
+
+            const attachEventListeners = () => {
+                document.querySelectorAll('.accept-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        if(confirm('Accept this request? Other pending requests for this book will be rejected.')) {
+                            const res = Exchange.acceptRequest(id);
+                            if(res.success) {
+                                UI.showToast('Accepted', res.message, 'success');
+                                renderData();
+                            } else UI.showToast('Error', res.message, 'danger');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.reject-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        if(confirm('Reject this request?')) {
+                            const res = Exchange.rejectRequest(id);
+                            if(res.success) {
+                                UI.showToast('Rejected', res.message, 'info');
+                                renderData();
+                            } else UI.showToast('Error', res.message, 'danger');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        if(confirm('Cancel this request?')) {
+                            const res = Exchange.cancelRequest(id);
+                            if(res.success) {
+                                UI.showToast('Cancelled', res.message, 'info');
+                                renderData();
+                            } else UI.showToast('Error', res.message, 'danger');
+                        }
+                    });
+                });
+            };
+
+            renderData();
+        });
+    </script>
+</body>
+</html>

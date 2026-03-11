@@ -1,0 +1,199 @@
+:root {
+    --primary-color: #4f46e5; /* Indigo */
+    --primary-hover: #4338ca;
+    --secondary-color: #10b981; /* Emerald */
+    --dark-color: #1f2937;
+    --light-color: #f3f4f6;
+    --text-color: #374151;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --success-color: #10b981;
+    --info-color: #3b82f6;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-color);
+    background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Main Content Area */
+main {
+    flex: 1;
+}
+
+/* Custom Navbar */
+.navbar {
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary-color) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav-link {
+    font-weight: 500;
+    color: var(--text-color) !important;
+    transition: color 0.2s ease;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* Utilities */
+.text-primary { color: var(--primary-color) !important; }
+.bg-primary { background-color: var(--primary-color) !important; }
+.btn-primary { 
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.card-title {
+    font-weight: 600;
+}
+
+/* Custom Input */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(79,70,229,0.05) 0%, rgba(16,185,129,0.05) 100%);
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Footer */
+footer {
+    background-color: var(--dark-color);
+    color: white;
+    padding: 3rem 0;
+    margin-top: auto;
+}
+footer a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+footer a:hover {
+    color: white;
+}
+
+/* Toast Container */
+.toast-container {
+    z-index: 1060; /* Above modals */
+}
+
+/* Empty States */
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-light);
+    border: 2px dashed var(--border-color);
+    border-radius: 1rem;
+    background-color: white;
+}
+.empty-state i {
+    font-size: 3rem;
+    color: var(--border-color);
+    margin-bottom: 1rem;
+}
+
+/* Book Cover Placeholder */
+.book-cover-placeholder {
+    height: 200px;
+    background: linear-gradient(45deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%, #e5e7eb 100%);
+    background-size: 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 3rem;
+}
+
+/* Badges */
+.badge-pending { background-color: var(--warning-color); color: white; }
+.badge-accepted { background-color: var(--success-color); color: white; }
+.badge-rejected { background-color: var(--danger-color); color: white; }
+.badge-completed { background-color: var(--info-color); color: white; }
+
+/* Dark Mode Overrides (Bootstrap 5.3+ native attribute) */
+[data-bs-theme="dark"] {
+    --primary-color: #818cf8; /* Lighter Indigo */
+    --primary-hover: #6366f1;
+    --dark-color: #f3f4f6;
+    --text-color: #e5e7eb;
+    --text-light: #9ca3af;
+    --border-color: #374151;
+    background-color: #111827;
+}
+[data-bs-theme="dark"] body {
+    background-color: #111827;
+}
+[data-bs-theme="dark"] .navbar {
+    background-color: #1f2937 !important;
+    border-bottom: 1px solid #374151;
+}
+[data-bs-theme="dark"] .card {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+}
+[data-bs-theme="dark"] .card-header {
+    background-color: #1f2937 !important;
+    border-bottom: 1px solid #374151 !important;
+}
+[data-bs-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(16,185,129,0.15) 100%);
+    border-bottom: 1px solid #374151;
+}
+[data-bs-theme="dark"] .empty-state {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+[data-bs-theme="dark"] .book-cover-placeholder {
+    background: linear-gradient(45deg, #1f2937 25%, #374151 25%, #374151 50%, #1f2937 50%, #1f2937 75%, #374151 75%, #374151 100%);
+}
+[data-bs-theme="dark"] .bg-light { background-color: #1f2937 !important; }
+[data-bs-theme="dark"] .bg-white { background-color: #1f2937 !important; }
+[data-bs-theme="dark"] .text-dark { color: #f9fafb !important; }
+[data-bs-theme="dark"] .table { --bs-table-bg: #1f2937; --bs-table-color: #f9fafb; --bs-table-border-color: #374151; }
+[data-bs-theme="dark"] footer { background-color: #030712; }
+[data-bs-theme="dark"] .dropdown-menu { background-color: #1f2937; border-color: #374151; }
+[data-bs-theme="dark"] .dropdown-item { color: #e5e7eb; }
+[data-bs-theme="dark"] .dropdown-item:hover { background-color: #374151; color: white; }

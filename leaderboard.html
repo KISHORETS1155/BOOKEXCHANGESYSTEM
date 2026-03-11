@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Book Exchange System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        const savedTheme = localStorage.getItem('book_exchange_theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    </script>
+    <style>
+        .rank-1 { background-color: rgba(251, 191, 36, 0.15) !important; font-weight: bold; }
+        .rank-2 { background-color: rgba(156, 163, 175, 0.15) !important; font-weight: bold; }
+        .rank-3 { background-color: rgba(180, 83, 9, 0.15) !important; font-weight: bold; }
+        .rank-medal { font-size: 1.5rem; }
+        .text-gold { color: #f59e0b; }
+        .text-silver { color: #9ca3af; }
+        .text-bronze { color: #b45309; }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold"><i class='bx bx-trophy text-warning'></i> Community Leaderboard</h2>
+            <p class="text-muted fs-5">Recognizing our top contributors based on books shared and active participation.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 10%">Rank</th>
+                                        <th class="text-start">Community Member</th>
+                                        <th>Books Listed</th>
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/books.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('leaderboardBody');
+            const users = Database.get('book_exchange_users') || [];
+            const books = Database.get('book_exchange_books') || [];
+            
+            // Calculate scores
+            // Score formula: (books listed * 10) + arbitrary randomness for demo to prevent ties
+            const scoredUsers = users.map(u => {
+                const userBooks = books.filter(b => b.ownerId === u.id).length;
+                let score = userBooks * 10;
+                
+                // Demo enhancement: Generate fake activity score based on user hash length so it's consistent
+                const fakeActivity = (u.id.length * 5) % 45; 
+                score += fakeActivity;
+                
+                return {
+                    ...u,
+                    bookCount: userBooks,
+                    score: score
+                };
+            });
+
+            // Sort
+            scoredUsers.sort((a,b) => b.score - a.score);
+
+            scoredUsers.forEach((user, index) => {
+                const rank = index + 1;
+                let rankClass = '';
+                let rankIcon = `#${rank}`;
+                
+                if (rank === 1) {
+                    rankClass = 'rank-1';
+                    rankIcon = `<i class='bx bxs-medal rank-medal text-gold'></i>`;
+                } else if (rank === 2) {
+                    rankClass = 'rank-2';
+                    rankIcon = `<i class='bx bxs-medal rank-medal text-silver'></i>`;
+                } else if (rank === 3) {
+                    rankClass = 'rank-3';
+                    rankIcon = `<i class='bx bxs-medal rank-medal text-bronze'></i>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="${rankClass}">
+                        <td class="fw-bold fs-5">${rankIcon}</td>
+                        <td class="text-start">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                    ${user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="fw-medium fs-5">${user.name} ${user.role==='admin' ? '<i class="bx bx-check-shield text-primary" title="Admin"></i>' : ''}</div>
+                            </div>
+                        </td>
+                        <td class="fs-5">${user.bookCount}</td>
+                        <td class="fs-5 text-primary fw-bold">${user.score} pts</td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

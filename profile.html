@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Book Exchange System</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-5">
+        <h2 class="mb-4"><i class='bx bx-user-circle text-primary'></i> My Profile</h2>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm text-center pt-4 h-100">
+                    <div class="mx-auto bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                        <i class='bx bx-user fs-1'></i>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold" id="profileName">Loading...</h4>
+                        <p class="text-muted" id="profileEmail">Loading...</p>
+                        <span class="badge bg-primary px-3 py-2 rounded-pill mb-3 text-capitalize" id="profileRole">User</span>
+                        <hr>
+                        <div class="text-start">
+                            <p class="mb-1"><i class='bx bx-calendar text-muted me-2'></i> <strong>Joined:</strong> <span id="profileJoined">--</span></p>
+                            <p class="mb-1"><i class='bx bx-book text-muted me-2'></i> <strong>Books Listed:</strong> <span id="profileBooksCount">0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title m-0">Edit Profile</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label for="editName" class="form-label fw-medium">Full Name</label>
+                                <input type="text" class="form-control" id="editName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label fw-medium">Email Address (Read-only)</label>
+                                <input type="email" class="form-control" id="editEmail" disabled readonly>
+                            </div>
+                            <div class="mb-4">
+                                <label for="editPassword" class="form-label fw-medium">New Password (Optional)</label>
+                                <input type="password" class="form-control" id="editPassword" placeholder="Leave blank to keep current password">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/books.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.requireAuth();
+            const sessionUser = Auth.getCurrentUser();
+            
+            // To get fresh data, refetch from DB
+            let user = Database.findById(DB_KEYS.USERS, sessionUser.id);
+            if (!user) {
+                // Failsafe
+                Auth.logout();
+                return;
+            }
+
+            const books = Books.getByOwner(user.id);
+
+            // Populate UI
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profileRole').textContent = user.role;
+            document.getElementById('profileJoined').textContent = new Date(user.joinedDate).toLocaleDateString();
+            document.getElementById('profileBooksCount').textContent = books.length;
+
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editEmail').value = user.email;
+
+            // Handle Update
+            document.getElementById('profileForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newName = document.getElementById('editName').value;
+                const newPassword = document.getElementById('editPassword').value;
+
+                const updates = { name: newName };
+                if (newPassword && newPassword.length >= 6) {
+                    updates.password = newPassword;
+                } else if (newPassword && newPassword.length < 6) {
+                    UI.showToast('Error', 'Password must be at least 6 characters.', 'danger');
+                    return;
+                }
+
+                Database.update(DB_KEYS.USERS, user.id, updates);
+                
+                // Update session
+                const updatedUser = Database.findById(DB_KEYS.USERS, user.id);
+                delete updatedUser.password;
+                localStorage.setItem(Auth.SESSION_KEY, JSON.stringify(updatedUser));
+
+                UI.showToast('Success', 'Profile updated successfully!', 'success');
+                
+                // Refresh UI
+                document.getElementById('profileName').textContent = newName;
+                document.getElementById('editPassword').value = '';
+                
+                // Re-render navbar to reflect name change if we added name to navbar (currently we didn't, but good practice)
+                UI.renderNavbar();
+            });
+        });
+    </script>
+</body>
+</html>
