@@ -49,6 +49,8 @@ Browse books shared by others
 Send exchange requests
 Owners approve/reject requests
 Book exchange is completed
+<img width="2870" height="1414" alt="Screenshot 2026-03-15 203910" src="https://github.com/user-attachments/assets/c0e4feb6-8325-4e68-8934-8b0417c27669" />
+
 
 
 <img width="1885" height="1396" alt="Screenshot 2026-03-15 203928" src="https://github.com/user-attachments/assets/13860ce4-1814-4c2d-ab9a-2b81c39393af" />
