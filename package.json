@@ -1,0 +1,11 @@
+{
+  "name": "bookexchange-screenshot-capture",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "screenshots": "node scripts/capture-screenshots.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.6.0"
+  }
+}
